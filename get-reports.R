@@ -1,4 +1,5 @@
 library(httr2)
+library(jsonlite)
 
 reports <- request("https://comptroller.nyc.gov/reports/") |>
   req_method("POST") |>
@@ -24,3 +25,23 @@ reports <- request("https://comptroller.nyc.gov/reports/") |>
     type = "application/json"
   ) |>
   req_perform()
+
+# Decompress the response body
+raw_body <- resp_body_raw(reports)
+decompressed_body <- memDecompress(raw_body, type = "gzip")
+
+# Convert raw bytes to character string
+json_text <- rawToChar(raw_body)
+
+# Parse JSON to list
+parsed_data <- fromJSON(json_text)
+
+# Check structure
+str(parsed_data)
+
+# Convert to dataframe (modify based on JSON structure)
+df <- as.data.frame(parsed_data)
+
+# Print the dataframe
+print(df)
+
